@@ -21,14 +21,14 @@ RUN apt-get update && \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
 
 # 安装 PyTorch 2.3 和 Transformers
-RUN pip install torch==2.3.0+cu118 torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
-RUN pip install transformers
-RUN pip install ms-swift
-RUN pip install librosa
-RUN pip install pydantic==1.10.22
-RUN pip install fastapi
-RUN pip install uvicorn
-RUN pip install accelerate==0.28.0
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com torch==2.3.0+cu118 torchvision torchaudio
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com transformers
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com ms-swift
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com librosa
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com pydantic==1.10.22
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com fastapi
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com uvicorn
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com accelerate==0.28.0
 
 # 设置工作目录
 WORKDIR /app
