@@ -21,7 +21,7 @@ RUN apt-get update && \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
 
 # 安装 PyTorch 2.3 和 Transformers
-RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com torch==2.3.0+cu118 torchvision torchaudio
+RUN pip install torch==2.3.0+cu118 torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com transformers
 RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com ms-swift
 RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com librosa
