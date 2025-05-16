@@ -31,6 +31,7 @@ template_type = template_type or model.model_meta.template
 template = get_template(template_type, tokenizer, default_system=default_system)
 engine = PtEngine.from_model_template(model, template, max_batch_size=2)
 request_config = RequestConfig(max_tokens=512, temperature=0)
+request_config_for_generate = RequestConfig(max_tokens=4096, temperature=0.5)
 
 def translate(audio):
     infer_requests = [
@@ -40,14 +41,29 @@ def translate(audio):
     resp_list = engine.infer(infer_requests, request_config)
     return resp_list[0].choices[0].message.content
 
+def generate(text, audio):
+    infer_requests = [
+        InferRequest(messages=[{'role': 'user', 'content': f'{text}<audio>'}],
+                     audios=[audio]),
+    ]
+    resp_list = engine.infer(infer_requests, request_config_for_generate)
+    return resp_list[0].choices[0].message.content
+
+def predict_without_audio(text):
+    infer_requests = [
+        InferRequest(messages=[{'role': 'user', 'content': f'{text}'}]),
+    ]
+    resp_list = engine.infer(infer_requests, request_config_for_generate)
+    return resp_list[0].choices[0].message.content
+
 # 定义输入数据模型
 class RequestData(BaseModel):
     text: str
     audio: UploadFile = File(...)  # 接收上传的音频文件
 
 # 定义 API 路由
-@app.post("/predict")
-async def predict_joint(text: str = Form(...), audio: UploadFile = File(...)):
+@app.post("/translate")
+async def trans(audio: UploadFile = File(...)):
     # 验证文件类型
     # if not audio.content_type.startswith("audio/"):
     #     raise HTTPException(status_code=400, detail=f"{audio.content_type},Invalid file type. Only audio files are allowed.")
@@ -56,7 +72,28 @@ async def predict_joint(text: str = Form(...), audio: UploadFile = File(...)):
     audio_bytes = await audio.read()
     # 调用模型推理
     result = translate(audio_bytes)
-    return {"result": result}
+    return {"data": result}
+
+@app.post("/generate")
+async def gener(text: str = Form(None), audio: UploadFile = File(None)):
+    # 检查是否至少提供一个参数
+    if text is None and audio is None:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one of 'text' or 'audio' must be provided."
+        )
+    # 验证文件类型
+    # if not audio.content_type.startswith("audio/"):
+    #     raise HTTPException(status_code=400, detail=f"{audio.content_type},Invalid file type. Only audio files are allowed.")
+    result = ""
+    if audio is None:
+        result = predict_without_audio(text)
+    # 读取音频文件内容
+    else:
+        audio_bytes = await audio.read()
+        # 调用模型推理
+        result = generate(text if text != None else "", audio_bytes)
+    return {"data": result}
 
 # 启动服务
 if __name__ == "__main__":
